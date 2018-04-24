@@ -44,7 +44,7 @@ class TartifletteVisitor(Visitor):
             node_name = node_name + "(%s)" % name
         return node_name
 
-    def __init__(self, variables=None, schema_definition=None):
+    def __init__(self, variables=None, schema=None):
         super().__init__()
         self.path = ""
         self.field_path = []
@@ -80,7 +80,7 @@ class TartifletteVisitor(Visitor):
         self._current_type_condition = None
         self._current_fragment_definition = None
         self._fragments = {}
-        self._schema_definition: GraphQLSchema = schema_definition
+        self.schema: GraphQLSchema = schema
         self.exception = None
 
     def _on_argument_in(self, element: _VisitorElement):
@@ -130,12 +130,14 @@ class TartifletteVisitor(Visitor):
 
         try:
             parent_type = self._current_node.gql_type
-        except AttributeError:
-            parent_type = self._schema_definition.query_type
+        except (AttributeError, TypeError):
+            parent_type = self.schema.query_type
 
-        field = self._schema_definition.get_field_by_name(
-            parent_type + '.' + element.name
-        )
+        if element.name in ["__schema", "__type", "__typekind"]:
+            field = self.schema._gql_types[element.name]
+        else:
+            field = self.schema.get_field_by_name(
+                parent_type + '.' + element.name)
 
         try:
             gql_type = reduce_type(field.gql_type)
@@ -148,7 +150,7 @@ class TartifletteVisitor(Visitor):
 
         resolver = getattr(field, 'resolver', _default_resolver)
         if resolver is None:
-            resolver = wrap_resolver(self._schema_definition,
+            resolver = wrap_resolver(self.schema,
                                      field,
                                      _default_resolver)
 
@@ -157,7 +159,7 @@ class TartifletteVisitor(Visitor):
             element.get_location(),
             self.field_path[:], element.name, self._current_type_condition,
             gql_type,
-            field
+            field,
         )
 
         node.parent = self._current_node

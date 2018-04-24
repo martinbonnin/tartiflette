@@ -81,3 +81,6 @@ class UnknownVariableException(GraphQLError):
         # TODO: Unify error messages format
         super().__init__(message="< %s > is not known" % varname)
 
+class UnknownGraphQLType(GraphQLError):
+    def __init__(self, message):
+        super().__init__(message=message)

@@ -1,14 +1,16 @@
-import traceback
 from typing import Optional, Dict, List, Union
 
 from tartiflette.executors.types import ExecutionData
 from tartiflette.types.builtins import GraphQLBoolean, GraphQLFloat, GraphQLID, \
     GraphQLInt, GraphQLString
 from tartiflette.types.exceptions.tartiflette import \
-    GraphQLSchemaError, InvalidValue, GraphQLError
+    GraphQLSchemaError, InvalidValue
 from tartiflette.types.field import GraphQLField
 from tartiflette.types.helpers import reduce_type
 from tartiflette.types.interface import GraphQLInterfaceType
+from tartiflette.types.introspection import SchemaRootFieldDefinition, \
+    TypeRootFieldDefinition, TypeNameRootFieldDefinition, IntrospectionSchema, \
+    IntrospectionType
 from tartiflette.types.list import GraphQLList
 from tartiflette.types.non_null import GraphQLNonNull
 from tartiflette.types.object import GraphQLObjectType
@@ -52,6 +54,12 @@ class GraphQLSchema:
         self.add_definition(GraphQLID)
         self.add_definition(GraphQLInt)
         self.add_definition(GraphQLString)
+        # Add Introspection
+        self.add_definition(SchemaRootFieldDefinition)
+        self.add_definition(IntrospectionSchema)
+        self.add_definition(TypeRootFieldDefinition)
+        self.add_definition(IntrospectionType)
+        self.add_definition(TypeNameRootFieldDefinition)
         # All `GraphQLObjectType`s implementing a given interface
         self._implementations: Dict[str, List[GraphQLType]] = {}
         # All non-abstract types possible for a given abstract type

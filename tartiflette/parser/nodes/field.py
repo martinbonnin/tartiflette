@@ -4,7 +4,7 @@ from .node import Node
 import asyncio
 
 
-async def _exec_list(resolver, lst, path, args, request_ctx, name, field, location):
+async def _exec_list(resolver, lst, path, args, request_ctx, name, field, location, schema):
     coroutines = []
 
     for index, item in enumerate(lst):
@@ -14,18 +14,18 @@ async def _exec_list(resolver, lst, path, args, request_ctx, name, field, locati
             coroutines.append(
                 _exec_list(
                     resolver, item, new_path[:], args, request_ctx,
-                    name, field, location
+                    name, field, location, schema,
                 )
             )
         else:
             coroutines.append(
                 resolver(
                     request_ctx,
-                    ExecutionData(item, new_path[:], args, name, field, location)
+                    ExecutionData(item, new_path[:], args, name, field, location, schema)
                 )
             )
 
-    return await asyncio.gather(*coroutines, return_exceptions=True)
+    return await asyncio.gather(*coroutines , return_exceptions=True)
 
 
 def _to_jsonable(thing):
@@ -59,11 +59,12 @@ class NodeField(Node):
         self.type_condition = type_condition
         self.as_jsonable = None
 
-    async def _get_results(self, request_ctx):
+    async def _get_results(self, request_ctx, schema):
         if self.parent and isinstance(self.parent.results, list):
             self.results = await _exec_list(
                 self.resolver, self.parent.results, self.path, self.arguments,
                 request_ctx, self.name, self.field, self.location,
+                schema,
             )
         else:
             self.results = await self.resolver(
@@ -75,6 +76,7 @@ class NodeField(Node):
                     self.name,
                     self.field,
                     self.location,
+                    schema,
                 )
             )
 
@@ -93,8 +95,8 @@ class NodeField(Node):
             else:
                 self.as_jsonable = _to_jsonable(self.results)
 
-    async def __call__(self, request_ctx):
-        await self._get_results(request_ctx)
+    async def __call__(self, request_ctx, schema):
+        await self._get_results(request_ctx, schema)
         self._results_to_jsonable()
 
         if self.parent:
