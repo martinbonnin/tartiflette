@@ -8,7 +8,7 @@ from tartiflette.types.exceptions.tartiflette import \
 from tartiflette.types.field import GraphQLField
 from tartiflette.types.helpers import reduce_type
 from tartiflette.types.interface import GraphQLInterfaceType
-from tartiflette.types.introspection import SchemaRootFieldDefinition, \
+from tartiflette.introspection import SchemaRootFieldDefinition, \
     TypeRootFieldDefinition, TypeNameRootFieldDefinition, IntrospectionSchema, \
     IntrospectionType
 from tartiflette.types.list import GraphQLList
