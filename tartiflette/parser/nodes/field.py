@@ -21,7 +21,10 @@ async def _exec_list(resolver, lst, path, args, request_ctx, name, field, locati
             coroutines.append(
                 resolver(
                     request_ctx,
-                    ExecutionData(item, new_path[:], args, name, field, location)
+                    ExecutionData(
+                        item, new_path[:], args, name,
+                        field, location
+                    )
                 )
             )
 

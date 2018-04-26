@@ -9,7 +9,6 @@ from tartiflette.types.exceptions.tartiflette import \
 
 
 def wrap_resolver(schema, field, resolver):
-
     @functools.wraps(resolver)
     async def wrapper(request_ctx, execution_data: ExecutionData):
         return schema.collect_field_value(

@@ -120,6 +120,7 @@ class GraphQLSchema:
                                 value.name,
                                 repr(self._gql_types.get(value.name))
             ))
+
         self._gql_types[value.name] = value
 
     def to_real_type(self, gql_type: Union[str, GraphQLNonNull, GraphQLList]):
